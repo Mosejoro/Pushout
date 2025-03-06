@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BINA - Sign Up</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Background decorative elements -->
+    <div class="bg-circle bg-circle-1"></div>
+    <div class="bg-circle bg-circle-2"></div>
+
+    <div class="container">
+      <!-- BINA Logo -->
+      <img src="bina-logo.png" alt="BINA" class="logo" />
+      <h2>Create Account</h2>
+      <form id="signupForm">
+        <div class="input-group">
+          <input type="text" id="signupUsername" placeholder=" " required />
+          <label for="signupUsername"
+            ><i class="fas fa-user"></i> Full Name</label
+          >
+        </div>
+        <div class="input-group">
+          <input type="email" id="signupEmail" placeholder=" " required />
+          <label for="signupEmail"><i class="fas fa-envelope"></i> Email</label>
+        </div>
+        <div class="input-group">
+          <input type="password" id="signupPassword" placeholder=" " required />
+          <label for="signupPassword"
+            ><i class="fas fa-lock"></i> Password</label
+          >
+        </div>
+        <div class="input-group">
+          <input type="text" id="signupCode" placeholder=" " required />
+          <label for="signupCode"><i class="fas fa-key"></i> Access Code</label>
+        </div>
+        <button type="submit"><i class="fas fa-user-plus"></i> Sign Up</button>
+      </form>
+      <p class="alt-link">
+        Already have an account? <a href="login.html">Login</a>
+      </p>
+      <p class="message" id="signupMessage"></p>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+    <script>
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDrmYh1IdlpFjo-qFS5fNiM0dQqTFK0Qck",
+        authDomain: "exam-database-fb965.firebaseapp.com",
+        projectId: "exam-database-fb965",
+        storageBucket: "exam-database-fb965.firebasestorage.app",
+        messagingSenderId: "55513306406",
+        appId: "1:55513306406:web:644b203eb1bb9bd5d09de7",
+        measurementId: "G-V5ZYG8KZ1L",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // Get references to Firebase services
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+
+      // Sign up form submission
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const username = document.getElementById("signupUsername").value;
+          const email = document.getElementById("signupEmail").value;
+          const password = document.getElementById("signupPassword").value;
+          const accessCode = document.getElementById("signupCode").value;
+          const messageElement = document.getElementById("signupMessage");
+
+          // Show loading state
+          document.querySelector("button").innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+          document.querySelector("button").disabled = true;
+
+          // First check if the email and access code match in authorized_users collection
+          db.collection("authorized_users")
+            .where("email", "==", email)
+            .get()
+            .then((querySnapshot) => {
+              if (querySnapshot.empty) {
+                throw new Error(
+                  "Email not authorized. Please contact your administrator."
+                );
+              }
+
+              // Check if the access code matches
+              let authorized = false;
+              querySnapshot.forEach((doc) => {
+                if (doc.data().accessCode === accessCode) {
+                  authorized = true;
+                }
+              });
+
+              if (!authorized) {
+                throw new Error(
+                  "Invalid access code. Please check and try again."
+                );
+              }
+
+              // Email and access code are valid, proceed with account creation
+              return auth.createUserWithEmailAndPassword(email, password);
+            })
+            .then((userCredential) => {
+              // User created successfully
+              const user = userCredential.user;
+
+              // Save additional user data to Firestore
+              return db.collection("users").doc(user.uid).set({
+                username: username,
+                email: email,
+                createdAt: new Date(),
+                role: "student", // Default role
+              });
+            })
+            .then(() => {
+              messageElement.textContent =
+                "Account created successfully! Redirecting to login...";
+              messageElement.style.color = "green";
+
+              // Redirect to login page after 2 seconds
+              setTimeout(() => {
+                window.location.href = "login.html";
+              }, 2000);
+            })
+            .catch((error) => {
+              console.error("Signup error:", error);
+              messageElement.textContent = error.message;
+              messageElement.style.color = "red";
+              // Reset button
+              document.querySelector("button").innerHTML =
+                '<i class="fas fa-user-plus"></i> Sign Up';
+              document.querySelector("button").disabled = false;
+            });
+        });
+    </script>
+  </body>
+</html>

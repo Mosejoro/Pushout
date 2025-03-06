@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BINA - Admin Login</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .admin-header {
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
+
+      .admin-container {
+        border: 2px solid #3498db;
+        box-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+      }
+
+      .admin-btn {
+        background-color: #2c3e50;
+      }
+
+      .admin-btn:hover {
+        background-color: #1a252f;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background decorative elements -->
+    <div class="bg-circle bg-circle-1"></div>
+    <div class="bg-circle bg-circle-2"></div>
+
+    <div class="container admin-container">
+      <!-- BINA Logo -->
+      <img src="bina-logo.png" alt="BINA" class="logo" />
+      <h2 class="admin-header">Admin Login</h2>
+      <form id="adminLoginForm">
+        <div class="input-group">
+          <input type="email" id="adminEmail" placeholder=" " required />
+          <label for="adminEmail"
+            ><i class="fas fa-envelope"></i> Admin Email</label
+          >
+        </div>
+        <div class="input-group">
+          <input type="password" id="adminPassword" placeholder=" " required />
+          <label for="adminPassword"
+            ><i class="fas fa-lock"></i> Admin Password</label
+          >
+        </div>
+        <button type="submit" class="admin-btn">
+          <i class="fas fa-user-shield"></i> Admin Login
+        </button>
+      </form>
+      <p class="alt-link">
+        <a href="login.html">Back to Student Login</a>
+      </p>
+      <p class="message" id="adminLoginMessage"></p>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+    <script>
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDrmYh1IdlpFjo-qFS5fNiM0dQqTFK0Qck",
+        authDomain: "exam-database-fb965.firebaseapp.com",
+        projectId: "exam-database-fb965",
+        storageBucket: "exam-database-fb965.firebasestorage.app",
+        messagingSenderId: "55513306406",
+        appId: "1:55513306406:web:644b203eb1bb9bd5d09de7",
+        measurementId: "G-V5ZYG8KZ1L",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // Get references to Firebase services
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+
+      // Clear any existing login state
+      function clearLoginState() {
+        localStorage.removeItem("loggedIn");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("userName");
+        // Sign out any existing user session
+        auth.signOut().catch((error) => {
+          console.log("Sign out error:", error);
+        });
+      }
+
+      // Run on page load to ensure fresh login is required
+      clearLoginState();
+
+      // Admin login form submission
+      document
+        .getElementById("adminLoginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("adminEmail").value;
+          const password = document.getElementById("adminPassword").value;
+          const messageElement = document.getElementById("adminLoginMessage");
+
+          // Show loading state
+          document.querySelector("button").innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+          document.querySelector("button").disabled = true;
+
+          // Sign in with email and password
+          auth
+            .signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+              // User signed in successfully
+              const user = userCredential.user;
+
+              // Get user data from Firestore to verify admin role
+              return db.collection("users").doc(user.uid).get();
+            })
+            .then((doc) => {
+              if (doc.exists && doc.data().role === "admin") {
+                // Store admin info in localStorage
+                localStorage.setItem("userName", doc.data().username);
+                localStorage.setItem("userRole", "admin");
+
+                messageElement.textContent =
+                  "Admin login successful! Redirecting...";
+                messageElement.style.color = "green";
+
+                // Redirect to admin dashboard
+                setTimeout(() => {
+                  window.location.href = "../admin/dashboard.html";
+                }, 2000);
+              } else {
+                // Not an admin, sign out and show error
+                auth.signOut();
+                throw new Error("Access denied. Admin privileges required.");
+              }
+            })
+            .catch((error) => {
+              console.error("Admin login error:", error);
+              messageElement.textContent = error.message;
+              messageElement.style.color = "red";
+              // Reset button
+              document.querySelector("button").innerHTML =
+                '<i class="fas fa-user-shield"></i> Admin Login';
+              document.querySelector("button").disabled = false;
+            });
+        });
+    </script>
+  </body>
+</html>

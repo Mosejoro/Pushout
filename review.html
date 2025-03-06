@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Review Incorrect Answers</title>
+    <link rel="stylesheet" href="exam.css" />
+    <link rel="icon" href="Bida2.png" />
+    <meta name="description" content="Review your exam answers" />
+    <link rel="apple-touch-icon" href="logo.png" />
+    <meta name="theme-color" content="#3a5ba3" />
+    <style>
+      .review-container {
+        margin-bottom: 2rem;
+      }
+      .question-review {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .correct-answer {
+        color: var(--success-green);
+        font-weight: bold;
+      }
+      .incorrect-answer {
+        color: var(--error-red);
+        font-weight: bold;
+      }
+      .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+      .filter-options {
+        display: flex;
+        gap: 1rem;
+      }
+      .filter-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .filter-btn.active {
+        background: var(--primary-blue);
+        border-color: var(--accent-white);
+      }
+      .option-item {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        border-radius: 8px;
+      }
+      .selected-option {
+        background: rgba(255, 255, 255, 0.15);
+      }
+      .correct-option {
+        background: rgba(46, 204, 113, 0.15);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="logo.png" alt="MOSEJORO Logo" />
+        <h1>Exam Review</h1>
+        <div id="exam-info"></div>
+      </div>
+
+      <div class="review-header">
+        <h2>Review Your Answers</h2>
+        <div class="filter-options">
+          <button class="filter-btn active" data-filter="incorrect">
+            Incorrect Only
+          </button>
+          <button class="filter-btn" data-filter="all">All Questions</button>
+        </div>
+      </div>
+
+      <div id="review-content" class="review-container">
+        <div class="loading"></div>
+      </div>
+
+      <button onclick="window.location.href='index.html'" class="submit-btn">
+        Back to Home
+      </button>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get stored responses
+        const responsesJSON = localStorage.getItem("examResponses");
+        const subject = localStorage.getItem("examSubjectResult");
+        const cls = localStorage.getItem("examClassResult");
+
+        if (!responsesJSON) {
+          document.getElementById("review-content").innerHTML = `
+          <div class="error-message">
+            <p>No exam data found to review. Please take an exam first.</p>
+            <button onclick="window.location.href='index.html'" class="submit-btn">Go to Exams</button>
+          </div>
+        `;
+          return;
+        }
+
+        // Display exam info
+        document.getElementById("exam-info").innerHTML = `
+        <h3>Subject: ${subject ? subject.replace(/_/g, " ") : "Unknown"}</h3>
+        <h4>Class: ${cls ? "Primary " + cls.substring(1) : "Unknown"}</h4>
+      `;
+
+        // Parse the responses
+        const responses = JSON.parse(responsesJSON);
+
+        // Set up filter buttons
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        filterButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            // Remove active class from all buttons
+            filterButtons.forEach((btn) => btn.classList.remove("active"));
+            // Add active class to clicked button
+            this.classList.add("active");
+            // Apply filter
+            displayReviewContent(responses, this.dataset.filter);
+          });
+        });
+
+        // Initial display - show incorrect answers by default
+        displayReviewContent(responses, "incorrect");
+      });
+
+      function displayReviewContent(responses, filter) {
+        const reviewContent = document.getElementById("review-content");
+        reviewContent.innerHTML = "";
+
+        // Filter responses based on selected filter
+        const filteredResponses =
+          filter === "all"
+            ? responses
+            : responses.filter((response) => !response.correct);
+
+        if (filteredResponses.length === 0) {
+          reviewContent.innerHTML = `
+          <div class="success-message">
+            <h3>Congratulations!</h3>
+            <p>You answered all questions correctly.</p>
+          </div>
+        `;
+          return;
+        }
+
+        // Display each question and answer
+        filteredResponses.forEach((response) => {
+          // Handle case where options might be missing
+          const options = response.options || {};
+          const questionText =
+            response.questionText || `Question ${response.questionNumber}`;
+
+          const questionHTML = `
+          <div class="question-review">
+            <p class="question-text"><strong>Question ${
+              response.questionNumber
+            }:</strong> ${questionText}</p>
+            <div class="options-container">
+              ${Object.entries(options)
+                .map(
+                  ([key, value]) => `
+                <div class="option-item ${
+                  key === response.selectedAnswer ? "selected-option" : ""
+                } ${key === response.correctAnswer ? "correct-option" : ""}">
+                  ${value}
+                  ${
+                    key === response.selectedAnswer
+                      ? `<span class="${
+                          response.correct
+                            ? "correct-answer"
+                            : "incorrect-answer"
+                        }">
+                      (Your Answer)
+                    </span>`
+                      : ""
+                  }
+                  ${
+                    key === response.correctAnswer &&
+                    key !== response.selectedAnswer
+                      ? '<span class="correct-answer">(Correct Answer)</span>'
+                      : ""
+                  }
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+            <div class="answer-status">
+              ${
+                response.correct
+                  ? '<p class="correct-answer">✓ Correct</p>'
+                  : `<p class="incorrect-answer">✗ Incorrect</p>`
+              }
+            </div>
+          </div>
+        `;
+
+          reviewContent.innerHTML += questionHTML;
+        });
+      }
+    </script>
+  </body>
+</html>

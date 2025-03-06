@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+      form {
+        max-width: 300px;
+        margin: auto;
+      }
+      input,
+      button {
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Signup</h2>
+    <form id="signupForm">
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Sign Up</button>
+    </form>
+
+    <script>
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          let name = document.getElementById("name").value;
+          let email = document.getElementById("email").value;
+          let password = document.getElementById("password").value;
+
+          fetch(
+            "https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxIWlaMe54OZRMS2alqzdHukDb72b9tuHys6oNGGCyw75nOh1g70JScI9_ym_s43C32EA/exec",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name, email, password }),
+            }
+          )
+            .then((response) => response.json())
+            .then((data) => alert(data.message))
+            .catch((error) => console.error("Error:", error));
+        });
+    </script>
+  </body>
+</html>

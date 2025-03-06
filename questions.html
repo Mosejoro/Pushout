@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exam Questions</title>
+    <link rel="stylesheet" href="exam.css" />
+    <link rel="icon" href="Bida2.png" />
+    <meta
+      name="description"
+      content="Online Examination System for Primary School Students"
+    />
+    <link rel="apple-touch-icon" href="logo.png" />
+    <meta name="theme-color" content="#your-brand-color" />
+  </head>
+  <body>
+    <div class="container">
+      <div
+        id="exam-info"
+        class="header"
+        role="region"
+        aria-labelledby="exam-details"
+      ></div>
+
+      <div class="progress-bar">
+        <div class="progress-bar-fill" style="width: 0%"></div>
+      </div>
+
+      <div id="questions">
+        <div class="loading"></div>
+      </div>
+    </div>
+
+    <div class="timer">
+      <span class="timer-icon">⏱</span>
+      <span id="time-remaining">00:00</span>
+    </div>
+    <script src="script.js"></script>
+    <script>
+      // Auto-load questions when page loads
+      window.addEventListener("load", () => {
+        console.log("Questions page loaded");
+
+        // Check if user is logged in
+        const userName = localStorage.getItem("userName");
+        console.log("User name from localStorage:", userName);
+
+        if (!userName) {
+          console.log("No username found, redirecting to login");
+          alert("Please log in first");
+          window.location.href = "Entrance/login.html";
+          return;
+        }
+
+        // Get stored exam details
+        const day = localStorage.getItem("examDay");
+        const cls = localStorage.getItem("examClass");
+        const subject = localStorage.getItem("examSubject");
+
+        console.log("Exam details retrieved:", { day, class: cls, subject });
+
+        if (!day || !cls || !subject) {
+          console.log("Missing exam details, redirecting to index");
+          alert("Please select exam details first");
+          window.location.href = "index.html";
+          return;
+        }
+
+        // Display exam info
+        document.getElementById("exam-info").innerHTML = `
+          <h1>Exam Details</h1>
+          <h3 class="head">Student: ${userName}</h3>
+          <h3 class="head">Day: ${day}</h3>
+          <h3 class="head">Class: Primary ${cls.substring(1)}</h3>
+          <h3 class="head">Subject: ${subject.replace(/_/g, " ")}</h3>
+          <h2 class="Warn">IF THIS INFORMATION IS WRONG <a class="btn-link" href="index.html"> Go Back</a></h2>
+        `;
+
+        // Auto fetch questions
+        fetchQuestions(day, cls, subject);
+      });
+    </script>
+  </body>
+</html>

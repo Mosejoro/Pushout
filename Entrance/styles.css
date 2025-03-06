@@ -1,0 +1,173 @@
+/* Import Google Font - adding more weights for better typography */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Salsa&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+/* Root Variables - enhanced with BINA brand colors */
+:root {
+  --primary-color: #f7b500; /* BINA yellow */
+  --primary-dark: #d9a000;
+  --secondary-color: #222222;
+  --background-color: #f1f1f1;
+  --text-color: #333333;
+  --border-radius: 8px;
+  --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+/* Global Styles */
+body {
+  font-family: "Salsa", sans-serif;
+  background: var(--background-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  background: #fff;
+  padding: 2.5rem;
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  text-align: center;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+}
+
+.logo {
+  width: 100px;
+  margin: 0 auto 20px;
+}
+
+h2 {
+  color: var(--secondary-color);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  width: 90%;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.input-group input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(247, 181, 0, 0.2);
+}
+
+.input-group label {
+  position: absolute;
+  left: 15px;
+  top: 13px;
+  color: #888;
+  transition: var(--transition);
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+.input-group input:focus ~ label,
+.input-group input:not(:placeholder-shown) ~ label {
+  top: -10px;
+  left: 10px;
+  font-size: 0.8rem;
+  background: white;
+  padding: 0 5px;
+  color: var(--primary-color);
+}
+
+.input-group input::placeholder {
+  color: transparent;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary-color);
+  border: none;
+  color: var(--secondary-color);
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.alt-link {
+  margin-top: 20px;
+  display: block;
+  font-size: 0.9rem;
+}
+
+.message {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  min-height: 20px;
+  transition: var(--transition);
+}
+
+/* Background design elements */
+.bg-circle {
+  position: fixed;
+  border-radius: 50%;
+  background: rgba(247, 181, 0, 0.1);
+  z-index: -1;
+}
+
+.bg-circle-1 {
+  width: 300px;
+  height: 300px;
+  top: -150px;
+  left: -100px;
+}
+
+.bg-circle-2 {
+  width: 500px;
+  height: 500px;
+  bottom: -250px;
+  right: -200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .container {
+    padding: 2rem 1.5rem;
+  }
+}

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Examination System</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <meta
+      name="description"
+      content="Online Examination System for Primary School Students"
+    />
+    <link rel="apple-touch-icon" href="logo.png" />
+    <meta name="theme-color" content="#your-brand-color" />
+    <link rel="stylesheet" href="exam.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="logo.png" /><br />
+        <h1>Online Examination System</h1>
+        <div id="welcome-message">
+          <!-- Welcome message will be inserted here -->
+        </div>
+        <h3>
+          Pick the Day <br /><br />
+          And then Pick the Subject of that day <br />
+        </h3>
+      </div>
+
+      <div class="selection-form animate__animated animate__fadeIn">
+        <div class="form-group Day">
+          <label for="day">Select Day:</label>
+          <select id="day" class="form-control">
+            <option value="Day1">Monday</option>
+            <!-- <option value="Day2">Tuesday</option>
+          <option value="Day3">Wednesday</option>
+          <option value="Day4">Thursday</option>
+          <option value="Day5">Friday</option> -->
+          </select>
+        </div>
+
+        <div class="form-group class">
+          <label for="class">Select Class:</label>
+          <select id="class" class="form-control">
+            <!-- <option value="P1">Primary 1</option>
+          <option value="P2">Primary 2</option>
+          <option value="P3">Primary 3</option>
+          <option value="P4">Primary 4</option>
+          <option value="P5">Primary 5</option> -->
+            <option value="P6">Primary 6</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="subject">Select Subject:</label>
+          <select id="subject" class="form-control"></select>
+        </div>
+
+        <button
+          onclick="startExam()"
+          class="btn btn-primary btn-block"
+          data-action="start-exam"
+          aria-label="Begin Examination"
+        >
+          Start Exam
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Check if user is logged in
+      document.addEventListener("DOMContentLoaded", function () {
+        // Clear any existing exam data
+        localStorage.removeItem("examDay");
+        localStorage.removeItem("examClass");
+        localStorage.removeItem("examSubject");
+        localStorage.removeItem("examInProgress");
+
+        const userName = localStorage.getItem("userName");
+        const userRole = localStorage.getItem("userRole");
+
+        if (!userName) {
+          // Redirect to login if no username is found
+          window.location.href = "Entrance/login.html";
+          return;
+        }
+
+        // Redirect admin to admin dashboard
+        if (userRole === "admin") {
+          window.location.href = "admin/dashboard.html";
+          return;
+        }
+
+        // Display welcome message
+        const welcomeMessage = document.getElementById("welcome-message");
+        welcomeMessage.innerHTML = `<h2>Welcome, ${userName}!</h2>`;
+      });
+
+      // Move the existing updateSubjects code here
+      const timetable = {
+        Day1: {
+          // P1: ["English", "Mathematics"],
+          // P2: ["English", "Mathematics"],
+          // P3: ["English", "Mathematics"],
+          // P4: ["French", "CRK"],
+          // P5: ["French", "CRK"],
+          P6: ["GNS", "Mathematics", "English"],
+        },
+        // Day2: {
+        //   P1: ["CCA", "Basic_Science"],
+        //   P2: ["CCA", "Basic_Science"],
+        //   P3: ["CCA", "Basic_Science"],
+        //   P4: ["PVS", "National_Value"],
+        //   P5: ["PVS", "National_Value"],
+        //   P6: ["PVS", "National_Value"],
+        // },
+        // Day3: {
+        //   P1: ["PVS", "National_Value"],
+        //   P2: ["PVS", "National_Value"],
+        //   P3: ["PVS", "National_Value"],
+        //   P4: ["CCA", "Basic_Science"],
+        //   P5: ["CCA", "Basic_Science"],
+        //   P6: ["CCA", "Basic_Science"],
+        // },
+        // Day4: {
+        //   P1: ["CRK"],
+        //   P2: ["CRK"],
+        //   P3: ["CRK"],
+        // },
+        // Day5: {
+        //   P4: ["English", "Mathematics"],
+        //   P5: ["English", "Mathematics"],
+        //   P6: ["English", "Mathematics"],
+        // },
+        // Day6: {
+        //   P1: ["CRK", "Prevocational_Studies"],
+        //   P2: ["Mathematics", "National_Value"],
+        //   P3: ["English", "Mathematics"],
+        //   P4: ["Basic_Science", "CCA"],
+        //   P5: ["National_Value", "English"],
+        //   P6: ["Mathematics", "CCA"],
+        // },
+      };
+
+      document.getElementById("day").addEventListener("change", updateSubjects);
+      document
+        .getElementById("class")
+        .addEventListener("change", updateSubjects);
+
+      function updateSubjects() {
+        let day = document.getElementById("day").value;
+        let cls = document.getElementById("class").value;
+        let subjectsDropdown = document.getElementById("subject");
+
+        subjectsDropdown.innerHTML = "";
+
+        if (timetable[day] && timetable[day][cls]) {
+          timetable[day][cls].forEach((subject) => {
+            let option = document.createElement("option");
+            option.value = subject;
+            option.textContent = subject.replace(/_/g, " ");
+            subjectsDropdown.appendChild(option);
+          });
+        }
+      }
+
+      function startExam() {
+        const day = document.getElementById("day").value;
+        const cls = document.getElementById("class").value;
+        const subject = document.getElementById("subject").value;
+
+        if (!subject) {
+          alert("Please select a subject.");
+          return;
+        }
+
+        // Store selections in localStorage with clear values
+        localStorage.setItem("examDay", day);
+        localStorage.setItem("examClass", cls);
+        localStorage.setItem("examSubject", subject);
+
+        // Add a flag to indicate exam is in progress
+        localStorage.setItem("examInProgress", "true");
+
+        console.log("Exam details stored:", {
+          day: localStorage.getItem("examDay"),
+          class: localStorage.getItem("examClass"),
+          subject: localStorage.getItem("examSubject"),
+        });
+
+        // Redirect to questions page
+        window.location.href = "questions.html";
+      }
+
+      // Initialize subjects dropdown
+      updateSubjects();
+    </script>
+    <script>
+      function checkAuth() {
+        // Get username from localStorage
+        const userName = localStorage.getItem("userName");
+        const userRole = localStorage.getItem("userRole");
+
+        // Redirect to login if not authenticated
+        if (!userName) {
+          window.location.href = "Entrance/login.html";
+          return false;
+        }
+
+        // Redirect admin to admin dashboard
+        if (userRole === "admin") {
+          window.location.href = "admin/dashboard.html";
+          return false;
+        }
+
+        return true;
+      }
+
+      // Use this function at the start of your protected pages
+      // For example, add this to your index.html or dashboard pages
+      document.addEventListener("DOMContentLoaded", function () {
+        // Only run on protected pages (not on login/signup pages)
+        if (
+          !window.location.pathname.includes("login.html") &&
+          !window.location.pathname.includes("signup.html") &&
+          !window.location.pathname.includes("admin-login.html")
+        ) {
+          checkAuth();
+        }
+      });
+
+      // Handle user logout
+      function logoutUser() {
+        // Clear user data
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userRole");
+
+        // Redirect to login page
+        window.location.href = "Entrance/login.html";
+      }
+
+      // Auto logout after inactivity
+      function setLogoutTimer() {
+        clearTimeout(window.logoutTimer);
+        window.logoutTimer = setTimeout(() => {
+          localStorage.removeItem("userName");
+          localStorage.removeItem("userRole");
+          window.location.href = "Entrance/login.html";
+        }, 15 * 60 * 1000); // 15 minutes of inactivity
+      }
+
+      // Reset the timer on user interaction
+      document.addEventListener("mousemove", setLogoutTimer);
+      document.addEventListener("keypress", setLogoutTimer);
+
+      setLogoutTimer(); // Start the timer when the page loads
+    </script>
+
+    <a class="btn btn-p btn-block" href="#" onclick="logoutUser()">Logout</a>
+  </body>
+</html>
