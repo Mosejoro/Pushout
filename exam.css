@@ -185,6 +185,7 @@ body {
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   z-index: 1000;
+  text-decoration: none;
 }
 
 .btn-p:hover {
